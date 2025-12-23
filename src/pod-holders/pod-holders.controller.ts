@@ -1,6 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Patch, Req, UseGuards } from '@nestjs/common';
 import { PodHoldersService } from './pod-holders.service';
 import { CreatePodHolderDto } from './dto/create-pod-holder.dto';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('pod-holders')
 export class PodHoldersController {
@@ -12,8 +16,34 @@ export class PodHoldersController {
     console.log('BODY RECEIVED >>>', dto);
     return this.service.create(dto);
   }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Patch(':id/assign/:clubId')
+  assign(
+    @Param('id') podHolderId: string,
+    @Param('clubId') clubId: string,
+    @Req() req: any,
+  ) {
+    return this.service.assignPodHolderToClub(
+      podHolderId,
+      clubId,
+      req.user.sub,
+    );
+  }
 
-  // ✅ GET ALL POD HOLDERS (ADMIN USE)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Patch(':id/unassign')
+  unassign(
+    @Param('id') podHolderId: string,
+    @Req() req: any,
+  ) {
+    return this.service.unassignPodHolder(
+      podHolderId,
+      req.user.sub,
+    );
+  }
+ //✅ GET ALL POD HOLDERS (ADMIN USE)
   @Get()
   findAll() {
     return this.service.findAll();

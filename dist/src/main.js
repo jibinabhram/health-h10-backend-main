@@ -11,7 +11,7 @@ async function bootstrap() {
     app.useStaticAssets((0, path_1.join)(process.cwd(), 'uploads'), {
         prefix: '/uploads/',
     });
-    app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true, transformOptions: { enableImplicitConversion: true }, }));
     app.useGlobalFilters(new http_exception_filter_1.AllExceptionsFilter());
     app.useGlobalInterceptors(new response_interceptor_1.ResponseInterceptor());
     const port = process.env.PORT || 3000;

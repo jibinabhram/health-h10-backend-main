@@ -16,6 +16,9 @@ exports.PodHoldersController = void 0;
 const common_1 = require("@nestjs/common");
 const pod_holders_service_1 = require("./pod-holders.service");
 const create_pod_holder_dto_1 = require("./dto/create-pod-holder.dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guards/roles.guard");
+const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 let PodHoldersController = class PodHoldersController {
     service;
     constructor(service) {
@@ -24,6 +27,12 @@ let PodHoldersController = class PodHoldersController {
     create(dto) {
         console.log('BODY RECEIVED >>>', dto);
         return this.service.create(dto);
+    }
+    assign(podHolderId, clubId, req) {
+        return this.service.assignPodHolderToClub(podHolderId, clubId, req.user.sub);
+    }
+    unassign(podHolderId, req) {
+        return this.service.unassignPodHolder(podHolderId, req.user.sub);
     }
     findAll() {
         return this.service.findAll();
@@ -46,6 +55,27 @@ __decorate([
     __metadata("design:paramtypes", [create_pod_holder_dto_1.CreatePodHolderDto]),
     __metadata("design:returntype", void 0)
 ], PodHoldersController.prototype, "create", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
+    (0, common_1.Patch)(':id/assign/:clubId'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)('clubId')),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], PodHoldersController.prototype, "assign", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
+    (0, common_1.Patch)(':id/unassign'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PodHoldersController.prototype, "unassign", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),

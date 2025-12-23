@@ -6,17 +6,17 @@ export declare class PodsController {
     create(dto: CreatePodDto): import("@prisma/client").Prisma.Prisma__PodClient<{
         created_at: Date;
         updated_at: Date;
-        pod_id: string;
         serial_number: string | null;
         model: string | null;
+        pod_id: string;
         firmware: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         created_at: Date;
         updated_at: Date;
-        pod_id: string;
         serial_number: string | null;
         model: string | null;
+        pod_id: string;
         firmware: string | null;
     }[]>;
 }

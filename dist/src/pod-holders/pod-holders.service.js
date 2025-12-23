@@ -28,8 +28,7 @@ let PodHoldersService = class PodHoldersService {
     findAvailable() {
         return this.prisma.podHolder.findMany({
             where: {
-                coach_assignments: { none: {} },
-                player_pod_holders: { none: {} },
+                club_id: null,
             },
         });
     }
@@ -47,6 +46,60 @@ let PodHoldersService = class PodHoldersService {
             where: { pod_holder_id: id },
         });
         return { message: 'Pod holder deleted successfully' };
+    }
+    async assignPodHolderToClub(podHolderId, clubId, performedBy) {
+        const podHolder = await this.prisma.podHolder.findUnique({
+            where: { pod_holder_id: podHolderId },
+        });
+        if (!podHolder) {
+            throw new common_1.BadRequestException('Pod holder not found');
+        }
+        if (podHolder.club_id && podHolder.club_id !== clubId) {
+            throw new common_1.BadRequestException('Pod holder already assigned to another club');
+        }
+        const club = await this.prisma.club.findUnique({
+            where: { club_id: clubId },
+        });
+        if (!club) {
+            throw new common_1.BadRequestException('Club not found');
+        }
+        await this.prisma.$transaction([
+            this.prisma.podHolder.update({
+                where: { pod_holder_id: podHolderId },
+                data: { club_id: clubId },
+            }),
+            this.prisma.podHolderAudit.create({
+                data: {
+                    pod_holder_id: podHolderId,
+                    from_club_id: podHolder.club_id,
+                    to_club_id: clubId,
+                    action: podHolder.club_id ? 'REASSIGNED' : 'ASSIGNED',
+                    performed_by: performedBy,
+                },
+            }),
+        ]);
+    }
+    async unassignPodHolder(podHolderId, performedBy) {
+        const podHolder = await this.prisma.podHolder.findUnique({
+            where: { pod_holder_id: podHolderId },
+        });
+        if (!podHolder?.club_id)
+            return;
+        await this.prisma.$transaction([
+            this.prisma.podHolder.update({
+                where: { pod_holder_id: podHolderId },
+                data: { club_id: null },
+            }),
+            this.prisma.podHolderAudit.create({
+                data: {
+                    pod_holder_id: podHolderId,
+                    from_club_id: podHolder.club_id,
+                    to_club_id: null,
+                    action: 'UNASSIGNED',
+                    performed_by: performedBy,
+                },
+            }),
+        ]);
     }
 };
 exports.PodHoldersService = PodHoldersService;

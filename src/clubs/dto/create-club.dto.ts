@@ -1,28 +1,48 @@
-import { IsString, IsOptional } from 'class-validator';
+// src/clubs/dto/create-club.dto.ts
+
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+  IsArray,
+  ArrayNotEmpty,
+} from 'class-validator';
 
 export class CreateClubDto {
+  // ───────── CLUB ─────────
   @IsString()
+  @IsNotEmpty()
   club_name: string;
 
-  @IsOptional()
   @IsString()
-  address?: string;
+  @IsNotEmpty()
+  address: string;
 
-  @IsOptional()
   @IsString()
-  sport?: string;
+  @IsNotEmpty()
+  sport: string;
 
-  // ✅ CLUB ADMIN INFO (FROM FRONTEND)
+  // ───────── ADMIN ─────────
   @IsString()
+  @IsNotEmpty()
   admin_name: string;
 
-  @IsString()
+  @IsEmail()
   admin_email: string;
-
-  @IsString()
-  admin_password: string;
 
   @IsOptional()
   @IsString()
-  pod_holder_id?: string;
+  admin_phone?: string;
+
+  @IsString()
+  @MinLength(6)
+  admin_password: string;
+
+  // ───────── POD HOLDERS (MULTI) ─────────
+  @IsOptional()
+  @IsArray()                // ✅ REQUIRED
+  @IsString({ each: true }) // ✅ REQUIRED
+  pod_holder_ids?: string[];
 }

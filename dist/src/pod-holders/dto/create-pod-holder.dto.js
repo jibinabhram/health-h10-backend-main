@@ -17,13 +17,13 @@ class CreatePodHolderDto {
 }
 exports.CreatePodHolderDto = CreatePodHolderDto;
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreatePodHolderDto.prototype, "serial_number", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreatePodHolderDto.prototype, "model", void 0);
 //# sourceMappingURL=create-pod-holder.dto.js.map

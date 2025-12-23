@@ -26,18 +26,19 @@ model SuperAdmin {
 }
 
 model Club {
-  club_id         String           @id @default(uuid()) @db.Uuid
-  super_admin_id  String?          @db.Uuid
-  club_name       String?
-  address         String?
-  status          String?          @default("active")
-  created_at      DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime         @default(now()) @db.Timestamptz(6)
-  sport           String?
-  pod_holder_id   String?          @db.Uuid
-  club_admins     ClubAdmin[]
-  super_admin     SuperAdmin?      @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
-  pod_holder      PodHolder?       @relation(fields: [pod_holder_id], references: [pod_holder_id], onUpdate: NoAction, map: "fk_clubs_pod_holder")
+  club_id        String   @id @default(uuid()) @db.Uuid
+  super_admin_id String?  @db.Uuid
+  club_name      String?
+  address        String?
+  status         String?  @default("active")
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime @default(now()) @db.Timestamptz(6)
+  sport          String?
+
+  club_admins ClubAdmin[]
+  super_admin SuperAdmin? @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
+  pod_holders PodHolder[]
+
   coaches         Coach[]
   events          Event[]
   players         Player[]
@@ -129,17 +130,35 @@ model Pod {
 }
 
 model PodHolder {
-  pod_holder_id       String            @id @default(uuid()) @db.Uuid
-  serial_number       String?           @unique
-  model               String?
-  created_at          DateTime          @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime          @default(now()) @db.Timestamptz(6)
-  clubs               Club[]
+  pod_holder_id String   @id @default(uuid()) @db.Uuid
+  serial_number String?  @unique
+  model         String?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  club_id String? @db.Uuid
+  club    Club?   @relation(fields: [club_id], references: [club_id], onDelete: SetNull)
+
+  audits PodHolderAudit[]
+
   coach_assignments   CoachAssignment[]
   player_pod_holders  PlayerPodHolder[]
   pod_holder_statuses PodHolderStatus[]
 
+  @@index([club_id])
   @@map("pod_holders")
+}
+
+model PodHolderAudit {
+  audit_id      String   @id @default(uuid()) @db.Uuid
+  pod_holder_id String   @db.Uuid
+  from_club_id  String?  @db.Uuid
+  to_club_id    String?  @db.Uuid
+  action        String // ASSIGNED | UNASSIGNED | REASSIGNED
+  performed_by  String   @db.Uuid
+  created_at    DateTime @default(now())
+
+  pod_holder PodHolder @relation(fields: [pod_holder_id], references: [pod_holder_id])
 }
 
 model PodAllocation {
