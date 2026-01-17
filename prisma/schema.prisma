@@ -26,22 +26,20 @@ model SuperAdmin {
 }
 
 model Club {
-  club_id        String   @id @default(uuid()) @db.Uuid
-  super_admin_id String?  @db.Uuid
-  club_name      String?
-  address        String?
-  status         String?  @default("active")
-  created_at     DateTime @default(now()) @db.Timestamptz(6)
-  updated_at     DateTime @default(now()) @db.Timestamptz(6)
-  sport          String?
-
-  club_admins ClubAdmin[]
-  super_admin SuperAdmin? @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
-  pod_holders PodHolder[]
-
+  club_id         String           @id @default(uuid()) @db.Uuid
+  super_admin_id  String?          @db.Uuid
+  club_name       String?
+  address         String?
+  status          String?          @default("active")
+  created_at      DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime         @default(now()) @db.Timestamptz(6)
+  sport           String?
+  club_admins     ClubAdmin[]
+  super_admin     SuperAdmin?      @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
   coaches         Coach[]
   events          Event[]
   players         Player[]
+  pod_holders     PodHolder[]
   serviceRequests ServiceRequest[]
   subscriptions   Subscription[]
 
@@ -55,7 +53,6 @@ model ClubAdmin {
   phone               String?
   email               String?   @unique
   password_hash       String?
-  temp_password       String?
   profile_image       String?
   created_at          DateTime  @default(now()) @db.Timestamptz(6)
   updated_at          DateTime  @default(now()) @db.Timestamptz(6)
@@ -63,6 +60,7 @@ model ClubAdmin {
   reset_token_expires DateTime? @db.Timestamptz(6)
   login_otp           String?   @db.VarChar(32)
   login_otp_expires   DateTime? @db.Timestamptz(6)
+  temp_password       String?
   club                Club      @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
 
   @@map("club_admins")
@@ -93,38 +91,46 @@ model Coach {
 }
 
 model Player {
-  player_id          Int                @id @map("player_id")
-  club_id            String             @db.Uuid
-  player_name        String?
-  jersey_number      Int?
-  age                Int?
-  position           String?
-  phone              String?
-  player_image       String?
-  created_at         DateTime           @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime           @default(now()) @db.Timestamptz(6)
+  player_id String @id @map("player_id") @db.Uuid
+  club_id   String @db.Uuid
+
+  player_name   String?
+  jersey_number Int?
+  age           Int?
+  position      String?
+  phone         String?
+  player_image  String?
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  /**
+   * One-to-many
+   */
+  activity_metrics ActivityMetric[]
+
   coach_assignments  CoachAssignment[]
   event_participants EventParticipant[]
   player_pod_holders PlayerPodHolder[]
   player_pods        PlayerPod[]
-  club               Club               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
   raw_data           RawData[]
+
+  club Club @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
 
   @@map("players")
 }
 
 model Pod {
-  pod_id           String             @id @default(uuid()) @db.Uuid
-  batch_id         String             @db.VarChar(50)
-  serial_number    String?            @unique
-  device_id        String             @unique
-  model            String?
-  firmware         String?
-  pod_holder_id    String?            @db.Uuid
-  lifecycle_status PodLifecycleStatus @default(ACTIVE)
-  created_at       DateTime           @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime           @updatedAt @db.Timestamptz(6)
-
+  pod_id            String                @id @default(uuid()) @db.Uuid
+  batch_id          String                @db.VarChar(50)
+  serial_number     String?               @unique
+  device_id         String                @unique
+  model             String?
+  firmware          String?
+  pod_holder_id     String?               @db.Uuid
+  lifecycle_status  PodLifecycleStatus    @default(ACTIVE)
+  created_at        DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime              @updatedAt @db.Timestamptz(6)
   coach_assignments CoachAssignment[]
   player_pods       PlayerPod[]
   pod_allocations   PodAllocation[]
@@ -208,7 +214,7 @@ model CoachAssignment {
   coach_id      String?    @db.Uuid
   pod_id        String?    @db.Uuid
   pod_holder_id String?    @db.Uuid
-  player_id     Int?
+  player_id     String?    @db.Uuid
   assigned_at   DateTime   @default(now()) @db.Timestamptz(6)
   coach         Coach?     @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
   player        Player?    @relation(fields: [player_id], references: [player_id])
@@ -222,7 +228,7 @@ model CoachAssignment {
 
 model PlayerPod {
   id            String   @id @default(uuid()) @db.Uuid
-  player_id     Int
+  player_id     String   @db.Uuid
   pod_id        String   @db.Uuid
   assigned_date DateTime @default(now()) @db.Timestamptz(6)
   player        Player   @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
@@ -235,7 +241,7 @@ model PlayerPod {
 
 model PlayerPodHolder {
   id            String    @id @default(uuid()) @db.Uuid
-  player_id     Int
+  player_id     String    @db.Uuid
   pod_holder_id String    @db.Uuid
   assigned_date DateTime  @default(now()) @db.Timestamptz(6)
   player        Player    @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
@@ -276,7 +282,7 @@ model PodHolderStatus {
 model RawData {
   raw_id         String    @id @default(uuid()) @db.Uuid
   pod_id         String    @db.Uuid
-  player_id      Int?
+  player_id      String?   @db.Uuid
   ts             DateTime?
   acceleration_x Float?
   acceleration_y Float?
@@ -318,7 +324,7 @@ model EventParticipant {
   id        String  @id @default(uuid()) @db.Uuid
   event_id  String  @db.Uuid
   coach_id  String? @db.Uuid
-  player_id Int?
+  player_id String? @db.Uuid
   coach     Coach?  @relation(fields: [coach_id], references: [coach_id])
   event     Event   @relation(fields: [event_id], references: [event_id], onDelete: Cascade)
   player    Player? @relation(fields: [player_id], references: [player_id])
@@ -383,31 +389,36 @@ model ActivityMetric {
   id String @id @default(uuid()) @db.Uuid
 
   sessionId String @map("session_id")
-  playerId  Int    @map("player_id")
 
-  totalDistance    Float?
-  hsrDistance      Float?
-  sprintDistance   Float?
-  topSpeed         Float?
-  sprintCount      Int?
+  /**
+   * FK → players.player_id (UUID stored as string in TS)
+   */
+  playerId String @map("player_id") @db.Uuid
+  player   Player @relation(fields: [playerId], references: [player_id], onDelete: Cascade)
+
+  totalDistance    Float? @map("total_distance")
+  hsrDistance      Float? @map("hsr_distance")
+  sprintDistance   Float? @map("sprint_distance")
+  topSpeed         Float? @map("top_speed")
+  sprintCount      Int?   @map("sprint_count")
   acceleration     Float?
   deceleration     Float?
-  maxAcceleration  Float?
-  maxDeceleration  Float?
-  playerLoad       Float?
-  powerScore       Float?
-  hrMax            Int?
-  timeInRedZone    Float?
-  percentInRedZone Float?
-  hrRecoveryTime   Float?
+  maxAcceleration  Float? @map("max_acceleration")
+  maxDeceleration  Float? @map("max_deceleration")
+  playerLoad       Float? @map("player_load")
+  powerScore       Float? @map("power_score")
+  hrMax            Int?   @map("hr_max")
+  timeInRedZone    Float? @map("time_in_red_zone")
+  percentInRedZone Float? @map("percent_in_red_zone")
+  hrRecoveryTime   Float? @map("hr_recovery_time")
 
   recordedAt DateTime @map("recorded_at") @db.Timestamptz(6)
 
   @@unique([sessionId, playerId])
+  @@index([playerId])
   @@index([recordedAt])
   @@map("activity_metrics")
 }
-
 
 enum PodLifecycleStatus {
   ACTIVE
@@ -417,6 +428,7 @@ enum PodLifecycleStatus {
   REPLACED
   MAINTENANCE
   RETIRED
+  REPAIRED
 }
 
 enum PodReplacementReason {

@@ -1,5 +1,3 @@
-// src/clubs/dto/create-club.dto.ts
-
 import {
   IsEmail,
   IsNotEmpty,
@@ -42,7 +40,7 @@ export class CreateClubDto {
 
   // ───────── POD HOLDERS (MULTI) ─────────
   @IsOptional()
-  @IsArray()                // ✅ REQUIRED
-  @IsString({ each: true }) // ✅ REQUIRED
+  @IsArray()
+  @IsString({ each: true })
   pod_holder_ids?: string[];
 }

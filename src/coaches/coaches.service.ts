@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 export class CoachesService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE COACH
+
   async create(dto: {
     coach_name: string;
     email: string;
@@ -28,7 +28,7 @@ export class CoachesService {
     });
   }
 
-  // ✅ ✅ ✅ GET ONLY COACHES BELONGING TO LOGGED-IN CLUB
+
   async findByClub(club_id: string) {
     return this.prisma.coach.findMany({
       where: {
@@ -40,7 +40,7 @@ export class CoachesService {
     });
   }
 
-  // ✅ ✅ ✅ SAFE POD HOLDER ASSIGNMENT (NO DUPLICATES)
+  //  SAFE POD HOLDER ASSIGNMENT (NO DUPLICATES)
   async assignPodHolder(coach_id: string, pod_holder_id: string) {
     const coachUse = await this.prisma.coachAssignment.findFirst({
       where: { pod_holder_id },

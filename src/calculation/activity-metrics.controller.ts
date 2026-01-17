@@ -5,6 +5,7 @@ import {
   Body,
   Req,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { ActivityMetricsService } from './activity-metrics.service';
@@ -25,12 +26,12 @@ export class ActivityMetricsController {
     const { session_id, player_id, metrics } = body;
 
     if (!session_id || !player_id || !metrics) {
-      throw new Error('Invalid sync payload');
+      throw new BadRequestException('Invalid sync payload');
     }
 
     return this.service.createMetric(
-      session_id,
-      Number(player_id),
+      session_id,        // string
+      player_id,         // ✅ FIXED: UUID string (NO Number())
       {
         totalDistance: metrics.total_distance,
         hsrDistance: metrics.hsr_distance,
@@ -52,9 +53,10 @@ export class ActivityMetricsController {
         hrRecoveryTime: metrics.hr_recovery_time,
 
         createdAt: metrics.created_at,
-      }
+      },
     );
   }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   async getAllMetrics(@Req() req: any) {

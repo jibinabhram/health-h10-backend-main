@@ -18,7 +18,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class CoachesController {
   constructor(private svc: CoachesService) {}
 
-  // ✅ ✅ ✅ ONLY CLUB ADMIN CAN CREATE COACH
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('CLUB_ADMIN')
   @Post()
@@ -38,7 +38,7 @@ export class CoachesController {
     });
   }
 
-  // ✅ ✅ ✅ ONLY LOGGED-IN CLUB ADMIN CAN SEE THEIR COACHES
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('CLUB_ADMIN')
   @Get('my-club')
@@ -53,7 +53,7 @@ export class CoachesController {
     return this.svc.findByClub(club_id);
   }
 
-  // ✅ ✅ ✅ SAFE POD HOLDER ASSIGNMENT
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('CLUB_ADMIN')
   @Post('assign-pod-holder')

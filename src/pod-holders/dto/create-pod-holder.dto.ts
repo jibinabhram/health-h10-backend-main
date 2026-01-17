@@ -1,11 +1,17 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsArray,
+  ArrayMinSize,
+} from 'class-validator';
 
 export class CreatePodHolderDto {
   @IsString()
   @IsNotEmpty()
-  serial_number: string;
-
-  @IsString()
-  @IsNotEmpty()
   model: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  podIds: string[];
 }

@@ -20,7 +20,16 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class ClubsController {
   constructor(private readonly svc: ClubsService) {}
 
-  // ✅ CREATE CLUB (SUPER ADMIN ONLY)
+  /* ================= AVAILABLE CLUBS ================= */
+
+  @UseGuards(JwtAuthGuard)
+  @Get('available')
+  async getAvailableClubs() {
+    const clubs = await this.svc.findAvailable();
+    return { data: clubs };
+  }
+
+  /* ================= CREATE CLUB ================= */
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN')
   @Post()
@@ -29,15 +38,22 @@ export class ClubsController {
     return this.svc.create(super_admin_id, dto);
   }
 
-  // ✅ DELETE CLUB
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN')
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.svc.delete(id);
+  /* ================= GET ALL CLUBS ================= */
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll() {
+    return this.svc.findAll();
   }
 
-  // ✅ UPDATE CLUB
+  /* ================= UNASSIGNED POD HOLDERS ================= */
+    @UseGuards(JwtAuthGuard)
+    @Get('unassigned-pod-holders')
+    getUnassignedPodHolders() {
+      return this.svc.findUnassignedPodHolders();
+    }
+
+
+  /* ================= UPDATE CLUB ================= */
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN')
   @Patch(':id')
@@ -45,14 +61,28 @@ export class ClubsController {
     return this.svc.update(id, dto);
   }
 
-  // ✅ GET ALL CLUBS
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll() {
-    return this.svc.findAll();
+  /* ================= UPDATE STATUS ================= */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: 'ACTIVE' | 'INACTIVE',
+  ) {
+    return this.svc.updateStatus(id, status);
   }
 
-  // ✅ GET ONE CLUB
+  /* ================= DELETE CLUB ================= */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.svc.delete(id);
+  }
+
+
+
+  /* ================= GET ONE CLUB ================= */
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {

@@ -43,4 +43,10 @@ export class SuperAdminController {
       url: `/uploads/${file.filename}`,
     }));
   }
+
+  @Get('dashboard/stats')
+  async dashboardStats() {
+    return this.svc.getDashboardStats();
+  }
+
 }

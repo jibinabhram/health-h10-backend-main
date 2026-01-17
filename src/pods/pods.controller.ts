@@ -25,7 +25,7 @@ export class PodsController {
   /* ================= CREATE PODS IN ONE BATCH ================= */
   @Post('batch')
   async createBatch(
-    @Body() body: { count: number; model?: string },
+    @Body() body: { count: number; pod_holder_id: string; model?: string },
   ) {
     if (!body.count || body.count <= 0) {
       throw new BadRequestException('count must be greater than 0');
@@ -33,6 +33,7 @@ export class PodsController {
 
     const result = await this.svc.createMany(
       body.count,
+      body.pod_holder_id,
       body.model,
     );
 

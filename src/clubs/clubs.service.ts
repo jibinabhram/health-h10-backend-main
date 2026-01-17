@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 export class ClubsService {
   constructor(private prisma: PrismaService) {}
 
+  /* ───────────────── CREATE ───────────────── */
   async create(super_admin_id: string, dto: any) {
     return this.prisma.$transaction(async tx => {
       const club = await tx.club.create({
@@ -34,7 +35,7 @@ export class ClubsService {
         await tx.podHolder.updateMany({
           where: {
             pod_holder_id: { in: dto.pod_holder_ids },
-            club_id: null, // SAFETY: prevent reassignment
+            club_id: null,
           },
           data: {
             club_id: club.club_id,
@@ -52,26 +53,41 @@ export class ClubsService {
     });
   }
 
-  // ───────────────── DELETE ─────────────────
+  /* ───────────────── DELETE ───────────────── */
   async delete(club_id: string) {
-    // 🔴 TRANSACTION ADDED
-    return this.prisma.$transaction(async tx => {
-      // 🔴 UNASSIGN POD HOLDERS FIRST
-      await tx.podHolder.updateMany({
+    return this.prisma.$transaction([
+      this.prisma.podHolder.updateMany({
         where: { club_id },
         data: { club_id: null },
-      });
+      }),
 
-      await tx.clubAdmin.deleteMany({
+      this.prisma.player.deleteMany({
         where: { club_id },
-      });
+      }),
 
-      return tx.club.delete({
+      this.prisma.coach.deleteMany({
         where: { club_id },
-      });
-    });
+      }),
+
+      this.prisma.event.deleteMany({
+        where: { club_id },
+      }),
+
+      this.prisma.subscription.deleteMany({
+        where: { club_id },
+      }),
+
+      this.prisma.clubAdmin.deleteMany({
+        where: { club_id },
+      }),
+
+      this.prisma.club.delete({
+        where: { club_id },
+      }),
+    ]);
   }
 
+  /* ───────────────── UPDATE ───────────────── */
   async update(club_id: string, dto: any) {
     return this.prisma.club.update({
       where: { club_id },
@@ -79,35 +95,46 @@ export class ClubsService {
         club_name: dto.club_name,
         address: dto.address,
         sport: dto.sport,
-        status: dto.status,
+        status: dto.status ? dto.status.toLowerCase() : undefined,
       },
     });
   }
 
+
+
+  /* ───────────────── UPDATE STATUS ONLY  ───────────────── */
+    async updateStatus(club_id: string, status: 'ACTIVE' | 'INACTIVE') {
+      return this.prisma.club.update({
+        where: { club_id },
+        data: {
+          status: status.toLowerCase(), // "active" | "inactive"
+        },
+      });
+    }
+
+  /* ───────────────── FIND ALL (TABLE VIEW) ───────────────── */
   async findAll() {
     const clubs = await this.prisma.club.findMany({
       include: {
+        club_admins: true,
         pod_holders: {
-          select: {
-            pod_holder_id: true,
-            serial_number: true,
-            model: true,
+          include: {
+            pods: true, // needed for pods_count
           },
         },
-        club_admins: true,
+      },
+      orderBy: {
+        created_at: 'desc',
       },
     });
 
-    return clubs.map(club => ({
-      club_id: club.club_id,
-      club_name: club.club_name,
-      address: club.address,
-      sport: club.sport,
-      status: club.status,
+    return clubs.map(club => {
+      const podsCount = club.pod_holders.reduce(
+        (sum, holder) => sum + holder.pods.length,
+        0
+      );
 
-      pod_holders: club.pod_holders,
-
-      admin:
+      const admin =
         club.club_admins.length > 0
           ? {
               admin_id: club.club_admins[0].admin_id,
@@ -116,45 +143,161 @@ export class ClubsService {
               phone: club.club_admins[0].phone,
               temp_password: club.club_admins[0].temp_password,
             }
-          : null,
-    }));
+          : null;
+
+      return {
+        club_id: club.club_id,
+        club_name: club.club_name,
+        address: club.address,
+        sport: club.sport,
+        status: (club.status ?? 'INACTIVE').toUpperCase(),
+
+        admin,
+
+        pod_holders: club.pod_holders.map(holder => ({
+          pod_holder_id: holder.pod_holder_id,
+          serial_number: holder.serial_number,
+          model: holder.model,
+          pods: holder.pods,
+          pods_count: holder.pods.length,   // ✅ per holder
+        })),
+
+        pods_count: podsCount,              // ✅ existing
+        total_pods: podsCount,              // ✅ frontend expects this
+        podholders_count: club.pod_holders.length,
+      };
+
+    });
+
+
   }
 
+  /* ================= UNASSIGNED POD HOLDERS ================= */
+  async findUnassignedPodHolders() {
+    return this.prisma.podHolder.findMany({
+      where: {
+        club_id: null,
+      },
+      select: {
+        pod_holder_id: true,
+        serial_number: true,
+        model: true,
+      },
+      orderBy: { created_at: 'asc' },
+    });
+  }
+
+
+  /* ================= GET AVAILABLE CLUBS ================= */
+  async findAvailable() {
+    const clubs = await this.prisma.club.findMany({
+      where: {
+        status: 'active',
+      },
+      include: {
+        pod_holders: {
+          include: {
+            pods: true,
+          },
+        },
+        club_admins: {
+          select: {
+            name: true,
+            email: true,
+            temp_password: true,
+          },
+        },
+      },
+      orderBy: {
+        club_name: 'asc',
+      },
+    });
+
+    return clubs.map(club => {
+      const podsCount = club.pod_holders.reduce(
+        (sum, holder) => sum + holder.pods.length,
+        0,
+      );
+
+      return {
+        club_id: club.club_id,
+        club_name: club.club_name,
+
+        // ✅ counts for listing / assign UI
+        pods_count: podsCount,
+        podholders_count: club.pod_holders.length,
+
+        // ✅ useful for dropdown / edit context
+        address: club.address,
+        status: (club.status ?? 'INACTIVE').toUpperCase(),
+
+        // ✅ admin info (used in PDF or details)
+        admin:
+          club.club_admins.length > 0
+            ? {
+                name: club.club_admins[0].name,
+                email: club.club_admins[0].email,
+                temp_password: club.club_admins[0].temp_password,
+              }
+            : null,
+      };
+    });
+  }
+
+
+  /* ───────────────── FIND ONE (DETAIL VIEW) ───────────────── */
   async findOne(id: string) {
     const club = await this.prisma.club.findUnique({
       where: { club_id: id },
       include: {
+        club_admins: true,
         pod_holders: {
-          select: {
-            pod_holder_id: true,
-            serial_number: true,
-            model: true,
+          include: {
+            pods: true, // required for pods_count
           },
         },
-        club_admins: true,
       },
     });
 
     if (!club) return null;
 
-    // ✅ MATCH findAll() RESPONSE SHAPE
+    const podsCount = club.pod_holders.reduce(
+      (sum, holder) => sum + holder.pods.length,
+      0
+    );
+
+    const admin =
+      club.club_admins.length > 0
+        ? {
+            admin_id: club.club_admins[0].admin_id,
+            name: club.club_admins[0].name,
+            email: club.club_admins[0].email,
+            phone: club.club_admins[0].phone,
+            temp_password: club.club_admins[0].temp_password,
+          }
+        : null;
+
     return {
       club_id: club.club_id,
       club_name: club.club_name,
       address: club.address,
       sport: club.sport,
-      status: club.status,
-      pod_holders: club.pod_holders,
-      admin:
-        club.club_admins.length > 0
-          ? {
-              admin_id: club.club_admins[0].admin_id,
-              name: club.club_admins[0].name,
-              email: club.club_admins[0].email,
-              phone: club.club_admins[0].phone,
-              temp_password: club.club_admins[0].temp_password,
-            }
-          : null,
+      status: (club.status ?? 'INACTIVE').toUpperCase(),
+
+      admin,
+
+      pod_holders: club.pod_holders.map(holder => ({
+        pod_holder_id: holder.pod_holder_id,
+        serial_number: holder.serial_number,
+        model: holder.model,
+        pods: holder.pods,
+        pods_count: holder.pods.length,   // ✅ per holder
+      })),
+
+      pods_count: podsCount,
+      total_pods: podsCount,              // ✅ FIX
+      podholders_count: club.pod_holders.length,
     };
+
   }
 }

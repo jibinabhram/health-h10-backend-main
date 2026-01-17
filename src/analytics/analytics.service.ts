@@ -3,16 +3,31 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AnalyticsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async playerSummary(player_id: number) {
-    // simple analytics example: last 7 days total distance
+  /**
+   * player_id is UUID → MUST be string
+   */
+  async playerSummary(player_id: string) {
     const last7 = new Date();
     last7.setDate(last7.getDate() - 7);
+
     const rows = await this.prisma.activityMetric.findMany({
-      where: { playerId: player_id, recordedAt: { gte: last7 } },
+      where: {
+        playerId: player_id, // ✅ UUID string
+        recordedAt: { gte: last7 },
+      },
     });
-    const total = rows.reduce((s, r) => s + (r.totalDistance || 0), 0);
-    return { player_id, total_distance_last7: total, samples: rows.length };
+
+    const total = rows.reduce(
+      (sum, r) => sum + (r.totalDistance ?? 0),
+      0,
+    );
+
+    return {
+      player_id,
+      total_distance_last7: total,
+      samples: rows.length,
+    };
   }
 }

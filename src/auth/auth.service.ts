@@ -115,7 +115,7 @@ async login(dto: LoginDto) {
 
   await this.mailService.sendLoginOtpEmail(user.email!, otp);
 
-  // ⭐⭐ FIXED RESPONSE ⭐⭐
+
   return {
     needOtp: true,
     email: user.email,

@@ -7,7 +7,8 @@ export class PodsService {
   constructor(private prisma: PrismaService) {}
 
   /* ================= CREATE SINGLE POD ================= */
-  async create(dto: { model?: string }) {
+  async create(dto: { model?: string; pod_holder_id: string }) {
+
 
     const lastBatch = await this.prisma.pod.findFirst({
       where: { batch_id: { startsWith: 'BATCH_' } },
@@ -38,12 +39,21 @@ export class PodsService {
         device_id: this.generateDeviceId(),
         model: dto.model ?? null,
         lifecycle_status: 'ACTIVE',
+
+        // ✅ THIS WAS MISSING
+        pod_holder_id: dto.pod_holder_id,
       },
     });
+
   }
 
   /* ================= CREATE MULTIPLE PODS ================= */
-  async createMany(count: number, model?: string) {
+  async createMany(
+    count: number,
+    pod_holder_id: string,
+    model?: string,
+  )
+{
     if (!count || count <= 0) {
       throw new BadRequestException('Count must be greater than 0');
     }
@@ -80,7 +90,11 @@ export class PodsService {
         device_id: this.generateDeviceId(),
         model: model ?? null,
         lifecycle_status: 'ACTIVE',
+
+        // ✅ FIX
+        pod_holder_id,
       });
+
     }
 
     await this.prisma.pod.createMany({ data: pods });

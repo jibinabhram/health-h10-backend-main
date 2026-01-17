@@ -15,7 +15,6 @@ import {
 import { ClubAdminService } from './club-admin.service';
 import { CreateClubAdminDto } from './dto/create-club-admin.dto';
 
-// ✅ AUTH IMPORTS
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -28,7 +27,7 @@ import { UpdateClubAdminDto } from './dto/update-club-admin.dto';
 export class ClubAdminController {
   constructor(private readonly svc: ClubAdminService) {}
 
-  // ✅ ONLY SUPER ADMIN CAN CREATE CLUB ADMIN
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN')
   @Post()
@@ -40,7 +39,7 @@ export class ClubAdminController {
   @Roles('SUPER_ADMIN')
   @Get()
   findAll() {
-    return this.svc.findAll(); 
+    return this.svc.findAll();
   }
 
 
@@ -73,5 +72,7 @@ export class ClubAdminController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.svc.updateProfileImage(id, file.filename);
-  }
+
+
+}
 }

@@ -57,4 +57,47 @@ export class SuperAdminService {
   delete (updated as any).password_hash;
   return updated;
 }
+  async getDashboardStats() {
+    const now = new Date();
+
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    // CURRENT TOTALS
+    const [totalClubs, totalPodholders, totalPods] = await Promise.all([
+      this.prisma.club.count(),
+      this.prisma.podHolder.count(),
+      this.prisma.pod.count(),
+    ]);
+
+    // LAST MONTH TOTALS
+    const [lastMonthClubs, lastMonthPodholders, lastMonthPods] =
+      await Promise.all([
+        this.prisma.club.count({
+          where: { created_at: { lt: startOfThisMonth } },
+        }),
+        this.prisma.podHolder.count({
+          where: { created_at: { lt: startOfThisMonth } },
+        }),
+        this.prisma.pod.count({
+          where: { created_at: { lt: startOfThisMonth } },
+        }),
+      ]);
+
+    const calcGrowth = (current: number, previous: number) => {
+      if (previous === 0) return 100;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    return {
+      totalClubs,
+      totalPodholders,
+      totalPods,
+      clubGrowth: calcGrowth(totalClubs, lastMonthClubs),
+      podholderGrowth: calcGrowth(totalPodholders, lastMonthPodholders),
+      podGrowth: calcGrowth(totalPods, lastMonthPods),
+    };
+  }
+
+
 }
