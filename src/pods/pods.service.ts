@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, PodLifecycleStatus } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PodsService {
@@ -9,7 +10,7 @@ export class PodsService {
   /* ================= CREATE SINGLE POD ================= */
   async create(dto: { model?: string; pod_holder_id: string }) {
 
-
+    // 🔹 Generate next batch ID
     const lastBatch = await this.prisma.pod.findFirst({
       where: { batch_id: { startsWith: 'BATCH_' } },
       orderBy: { batch_id: 'desc' },
@@ -22,29 +23,16 @@ export class PodsService {
 
     const batch_id = `BATCH_${String(lastBatchNumber + 1).padStart(6, '0')}`;
 
-
-    const lastPod = await this.prisma.pod.findFirst({
-      orderBy: { serial_number: 'desc' },
-      select: { serial_number: true },
-    });
-
-    const lastNumber = lastPod?.serial_number
-      ? Number(lastPod.serial_number.replace('PD', ''))
-      : 0;
-
+    // ✅ Create pod with RANDOM serial & device id
     return this.prisma.pod.create({
       data: {
         batch_id,
-        serial_number: this.generateSerialNumber(lastNumber + 1),
-        device_id: this.generateDeviceId(),
-        model: dto.model ?? null,
+        serial_number: this.generatePodSerialNumber(), // PD-XXXXXXXX
+        device_id: this.generateDeviceId(5),            // A9K2Z
         lifecycle_status: 'ACTIVE',
-
-        // ✅ THIS WAS MISSING
         pod_holder_id: dto.pod_holder_id,
       },
     });
-
   }
 
   /* ================= CREATE MULTIPLE PODS ================= */
@@ -52,49 +40,35 @@ export class PodsService {
     count: number,
     pod_holder_id: string,
     model?: string,
-  )
-{
+  ) {
     if (!count || count <= 0) {
       throw new BadRequestException('Count must be greater than 0');
     }
 
+    // 🔹 Generate next batch ID
     const lastBatch = await this.prisma.pod.findFirst({
-        where: { batch_id: { startsWith: 'BATCH_' } },
-        orderBy: { batch_id: 'desc' },
-        select: { batch_id: true },
-      });
-
-      const lastBatchNumber = lastBatch
-        ? Number(lastBatch.batch_id.replace('BATCH_', ''))
-        : 0;
-
-      const batch_id = `BATCH_${String(lastBatchNumber + 1).padStart(6, '0')}`;
-
-
-    const lastPod = await this.prisma.pod.findFirst({
-      orderBy: { serial_number: 'desc' },
-      select: { serial_number: true },
+      where: { batch_id: { startsWith: 'BATCH_' } },
+      orderBy: { batch_id: 'desc' },
+      select: { batch_id: true },
     });
 
-    let lastNumber = lastPod?.serial_number
-      ? Number(lastPod.serial_number.replace('PD', ''))
+    const lastBatchNumber = lastBatch
+      ? Number(lastBatch.batch_id.replace('BATCH_', ''))
       : 0;
 
+    const batch_id = `BATCH_${String(lastBatchNumber + 1).padStart(6, '0')}`;
+
+    // ✅ Create pods
     const pods: Prisma.PodCreateManyInput[] = [];
 
     for (let i = 0; i < count; i++) {
-      lastNumber++;
       pods.push({
         batch_id,
-        serial_number: this.generateSerialNumber(lastNumber),
-        device_id: this.generateDeviceId(),
-        model: model ?? null,
+        serial_number: this.generatePodSerialNumber(),
+        device_id: this.generateDeviceId(5),
         lifecycle_status: 'ACTIVE',
-
-        // ✅ FIX
         pod_holder_id,
       });
-
     }
 
     await this.prisma.pod.createMany({ data: pods });
@@ -120,10 +94,7 @@ export class PodsService {
   }
 
   /* ================= UPDATE POD STATUS ================= */
-  async updateStatus(
-    podId: string,
-    status: PodLifecycleStatus,
-  ) {
+  async updateStatus(podId: string, status: PodLifecycleStatus) {
     const pod = await this.prisma.pod.findUnique({
       where: { pod_id: podId },
     });
@@ -142,17 +113,24 @@ export class PodsService {
   }
 
   /* ================= HELPERS ================= */
-  private generateSerialNumber(num: number): string {
-    return `PD${String(num).padStart(6, '0')}`;
+
+  // PD-XXXXXXXX (same style as pod holder)
+  private generatePodSerialNumber(): string {
+    return `PD-${randomUUID()
+      .replace(/-/g, '')
+      .slice(0, 8)
+      .toUpperCase()}`;
   }
 
-  private generateDeviceId(length = 16): string {
-    const chars =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  // 5-char device ID (A–Z, 0–9)
+  private generateDeviceId(length = 5): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
+
     for (let i = 0; i < length; i++) {
       result += chars[Math.floor(Math.random() * chars.length)];
     }
+
     return result;
   }
 }

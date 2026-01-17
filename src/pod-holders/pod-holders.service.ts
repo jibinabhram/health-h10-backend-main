@@ -19,12 +19,7 @@ export class PodHoldersService {
   /* ================= CREATE POD HOLDER ================= */
 
   async create(dto: CreatePodHolderDto) {
-    // Model validation
-    if (!dto.model || !dto.model.trim()) {
-      throw new BadRequestException('Pod holder model is required');
-    }
-
-    // ✅ FLEXIBLE RULE (minimum 1 pod)
+    // ✅ Validate pods only
     if (!dto.podIds || dto.podIds.length < 1) {
       throw new BadRequestException(
         'Pod holder must have at least 1 pod',
@@ -38,8 +33,8 @@ export class PodHoldersService {
 
       const podHolder = await tx.podHolder.create({
         data: {
-          model: dto.model.trim(),
           serial_number: serialNumber,
+          device_id: this.generateDeviceId(5),
         },
       });
 
@@ -69,6 +64,7 @@ export class PodHoldersService {
       return podHolder;
     });
   }
+
 
 
   /* ================= GET ALL POD HOLDERS ================= */
@@ -123,7 +119,6 @@ export class PodHoldersService {
       select: {
         pod_holder_id: true,
         serial_number: true,
-        model: true,
       },
       orderBy: { created_at: 'asc' },
     });
@@ -397,4 +392,16 @@ export class PodHoldersService {
 
     return { message: 'Pod holder unassigned' };
   }
+
+  private generateDeviceId(length = 5): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return result;
+  }
+
 }
