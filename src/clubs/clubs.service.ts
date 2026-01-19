@@ -20,7 +20,7 @@ export class ClubsService {
 
       const password_hash = await bcrypt.hash(dto.admin_password, 10);
 
-      await tx.clubAdmin.create({
+      const admin = await tx.clubAdmin.create({
         data: {
           club_id: club.club_id,
           name: dto.admin_name,
@@ -45,10 +45,10 @@ export class ClubsService {
 
       return {
         message: 'Club & Admin created successfully',
-        club: await tx.club.findUnique({
-          where: { club_id: club.club_id },
-          include: { pod_holders: true },
-        }),
+        club,
+        admin: {
+          admin_id: admin.admin_id,
+        },
       };
     });
   }

@@ -66,13 +66,13 @@ export class ClubAdminController {
   @Patch(':id/image')
   @UseInterceptors(FileInterceptor('file', localFileStorage))
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('CLUB_ADMIN')
+  @Roles('CLUB_ADMIN', 'SUPER_ADMIN')
   uploadImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log('FILE:', file);
+    console.log('ADMIN ID:', id);
     return this.svc.updateProfileImage(id, file.filename);
-
-
 }
 }
