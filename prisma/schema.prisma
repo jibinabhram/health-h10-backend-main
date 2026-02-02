@@ -40,11 +40,26 @@ model Club {
   events          Event[]
   players         Player[]
   pod_holders     PodHolder[]
+  exerciseTypes   ExerciseType[]
   serviceRequests ServiceRequest[]
   subscriptions   Subscription[]
   hr_zone_defaults ClubHrZoneDefault[]
 
   @@map("clubs")
+}
+
+model ExerciseType {
+  exercise_type_id String   @id @default(uuid()) @db.Uuid
+  club_id          String   @db.Uuid
+  name             String
+  event_type       String   @default("training")
+  is_system        Boolean  @default(false)
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  club Club @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
+
+  @@map("exercise_types")
 }
 
 model ClubAdmin {
