@@ -8,7 +8,7 @@ import { CreatePlayerDto } from './dto/create-player.dto';
 
 @Injectable()
 export class PlayersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createPlayer(
     clubAdminId: string,
@@ -41,10 +41,10 @@ export class PlayersService {
             age: dto.age,
             jersey_number: dto.jersey_number,
             position: dto.position,
-              phone: dto.phone,
-              heartrate: dto.heartrate,
-              height: dto.height,
-              weight: dto.weight,
+            phone: dto.phone,
+            heartrate: dto.heartrate,
+            height: dto.height,
+            weight: dto.weight,
           },
         });
       } catch (e: any) {
@@ -120,6 +120,7 @@ export class PlayersService {
             },
           },
         },
+        hr_zones: true,
       },
       orderBy: {
         created_at: 'desc',
