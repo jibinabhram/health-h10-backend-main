@@ -26,26 +26,44 @@ model SuperAdmin {
 }
 
 model Club {
-  club_id         String           @id @default(uuid()) @db.Uuid
-  super_admin_id  String?          @db.Uuid
-  club_name       String?
-  address         String?
-  status          String?          @default("active")
-  created_at      DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime         @default(now()) @db.Timestamptz(6)
-  sport           String?
-  club_admins     ClubAdmin[]
-  super_admin     SuperAdmin?      @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
-  coaches         Coach[]
-  events          Event[]
-  players         Player[]
-  pod_holders     PodHolder[]
-  exerciseTypes   ExerciseType[]
-  serviceRequests ServiceRequest[]
-  subscriptions   Subscription[]
+  club_id          String             @id @default(uuid()) @db.Uuid
+  super_admin_id   String?            @db.Uuid
+  club_name        String?
+  address          String?
+  status           String?            @default("active")
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  sport            String?
+  club_admins      ClubAdmin[]
+  coaches          Coach[]
+  events           Event[]
+  players          Player[]
+  pod_holders      PodHolder[]
+  exerciseTypes    ExerciseType[]
+  teamThresholds   TeamThreshold[]
+  serviceRequests  ServiceRequest[]
+  subscriptions    Subscription[]
   hr_zone_defaults ClubHrZoneDefault[]
+  super_admin      SuperAdmin?        @relation("superadmin_clubs", fields: [super_admin_id], references: [super_admin_id])
 
   @@map("clubs")
+}
+
+model TeamThreshold {
+  threshold_id String   @id @default(uuid()) @db.Uuid
+  club_id      String   @db.Uuid
+  type         String   // absolute or relative
+  zone_name    String   // Walk, Jog, Run, Sprint, High Intensity Sprint
+  min_val      Float
+  max_val      Float
+  is_default   Boolean  @default(true)
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  club Club @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
+
+  @@unique([club_id, type, zone_name])
+  @@map("team_thresholds")
 }
 
 model ExerciseType {
@@ -126,8 +144,9 @@ model Player {
   /**
    * One-to-many
    */
-  activity_metrics ActivityMetric[]
-  hr_zones         HrZone[]
+  activity_metrics  ActivityMetric[]
+  hr_zones          HrZone[]
+  playerThresholds  PlayerThreshold[]
 
   coach_assignments  CoachAssignment[]
   event_participants EventParticipant[]
@@ -138,6 +157,22 @@ model Player {
   club Club @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
   @@unique([club_id, jersey_number])
   @@map("players")
+}
+
+model PlayerThreshold {
+  threshold_id String   @id @default(uuid()) @db.Uuid
+  player_id    String   @db.Uuid
+  type         String   // absolute or relative
+  zone_name    String   // Walk, Jog, Run, Sprint, High Intensity Sprint
+  min_val      Float
+  max_val      Float
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  player Player @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
+
+  @@unique([player_id, type, zone_name])
+  @@map("player_thresholds")
 }
 
 model HrZone {

@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ActivityMetricsController {
   constructor(
     private readonly service: ActivityMetricsService,
-  ) {}
+  ) { }
 
   @Post('sync')
   @UseGuards(JwtAuthGuard)

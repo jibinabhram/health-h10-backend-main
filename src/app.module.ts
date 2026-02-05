@@ -21,6 +21,8 @@ import { PaymentPlansModule } from './payment-plans/payment-plans.module';
 import { PodHoldersModule } from './pod-holders/pod-holders.module';
 import { ActivityMetricsModule } from './calculation/activity-metrics.module';
 import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
+import { TeamThresholdsModule } from './team-thresholds/team-thresholds.module';
+import { PlayerThresholdsModule } from './player-thresholds/player-thresholds.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -45,6 +47,8 @@ import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
     AnalyticsModule,
     ActivityMetricsModule,
     ExerciseTypesModule,
+    TeamThresholdsModule,
+    PlayerThresholdsModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
