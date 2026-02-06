@@ -1,8 +1,0 @@
-[2026-02-04T10:39:51.057Z] 404 - {"message":"Cannot GET /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c","error":"Not Found","statusCode":404} - /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c
-[2026-02-04T10:40:13.153Z] 404 - {"message":"Cannot GET /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c","error":"Not Found","statusCode":404} - /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c
-[2026-02-04T10:42:42.961Z] 404 - {"message":"Cannot GET /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c","error":"Not Found","statusCode":404} - /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c
-[2026-02-04T10:56:34.189Z] 404 - {"message":"Cannot GET /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c","error":"Not Found","statusCode":404} - /team-thresholds?club_id=beecbc76-c71f-4311-a60b-eaee54303f8c
-[2026-02-05T06:06:45.502Z] 401 - {"message":"Invalid or expired OTP","error":"Unauthorized","statusCode":401} - /auth/verify-login-otp
-[2026-02-05T06:06:45.517Z] 401 - {"message":"Invalid or expired OTP","error":"Unauthorized","statusCode":401} - /auth/verify-login-otp
-[2026-02-05T06:06:45.521Z] 401 - {"message":"Invalid or expired OTP","error":"Unauthorized","statusCode":401} - /auth/verify-login-otp
-[2026-02-05T06:07:54.687Z] 401 - {"message":"Invalid or expired OTP","error":"Unauthorized","statusCode":401} - /auth/verify-login-otp

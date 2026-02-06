@@ -33,6 +33,7 @@ export class ActivityMetricsController {
       session_id,        // string
       player_id,         // ✅ FIXED: UUID string (NO Number())
       {
+        deviceId: metrics.device_id,
         totalDistance: metrics.total_distance,
         hsrDistance: metrics.hsr_distance,
         sprintDistance: metrics.sprint_distance,
@@ -52,7 +53,7 @@ export class ActivityMetricsController {
         percentInRedZone: metrics.percent_in_red_zone,
         hrRecoveryTime: metrics.hr_recovery_time,
 
-        createdAt: metrics.created_at,
+        recordedAt: metrics.recorded_at || metrics.created_at,
       },
     );
   }

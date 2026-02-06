@@ -150,6 +150,7 @@ model Player {
 
   coach_assignments  CoachAssignment[]
   event_participants EventParticipant[]
+  exercise_players   ExercisePlayer[]
   player_pod_holders PlayerPodHolder[]
   player_pods        PlayerPod[]
   raw_data           RawData[]
@@ -400,9 +401,36 @@ model Event {
   event_type         String?
   created_at         DateTime           @default(now()) @db.Timestamptz(6)
   event_participants EventParticipant[]
+  exercises          Exercise[]
   club               Club               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
 
   @@map("events")
+}
+
+model Exercise {
+  exercise_id String @id @default(uuid()) @db.Uuid
+  event_id    String @db.Uuid
+  type        String
+  start_ts    BigInt
+  end_ts      BigInt
+  color       String?
+
+  event            Event            @relation(fields: [event_id], references: [event_id], onDelete: Cascade)
+  exercise_players ExercisePlayer[]
+
+  @@map("exercises")
+}
+
+model ExercisePlayer {
+  id          String @id @default(uuid()) @db.Uuid
+  exercise_id String @db.Uuid
+  player_id   String @db.Uuid
+
+  exercise Exercise @relation(fields: [exercise_id], references: [exercise_id], onDelete: Cascade)
+  player   Player   @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
+
+  @@unique([exercise_id, player_id])
+  @@map("exercise_players")
 }
 
 model EventParticipant {
@@ -480,6 +508,8 @@ model ActivityMetric {
    */
   playerId String @map("player_id") @db.Uuid
   player   Player @relation(fields: [playerId], references: [player_id], onDelete: Cascade)
+
+  deviceId String? @map("device_id")
 
   totalDistance    Float? @map("total_distance")
   hsrDistance      Float? @map("hsr_distance")

@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ActivityMetricsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * sessionId → string
@@ -24,6 +24,7 @@ export class ActivityMetricsService {
       },
 
       update: {
+        deviceId: m.deviceId,
         totalDistance: m.totalDistance,
         hsrDistance: m.hsrDistance,
         sprintDistance: m.sprintDistance,
@@ -43,14 +44,13 @@ export class ActivityMetricsService {
         percentInRedZone: m.percentInRedZone,
         hrRecoveryTime: m.hrRecoveryTime,
 
-        recordedAt: new Date(
-          m.createdAt ? Number(m.createdAt) * 1000 : Date.now(),
-        ),
+        recordedAt: m.recordedAt ? new Date(Number(m.recordedAt)) : new Date(),
       },
 
       create: {
         sessionId,
-        playerId, // ✅ UUID string
+        playerId,
+        deviceId: m.deviceId,
 
         totalDistance: m.totalDistance,
         hsrDistance: m.hsrDistance,
@@ -71,9 +71,7 @@ export class ActivityMetricsService {
         percentInRedZone: m.percentInRedZone,
         hrRecoveryTime: m.hrRecoveryTime,
 
-        recordedAt: new Date(
-          m.createdAt ? Number(m.createdAt) * 1000 : Date.now(),
-        ),
+        recordedAt: m.recordedAt ? new Date(Number(m.recordedAt)) : new Date(),
       },
     });
   }
