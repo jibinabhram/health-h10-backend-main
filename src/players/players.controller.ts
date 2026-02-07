@@ -7,6 +7,7 @@ import {
   UseGuards,
   Patch,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { PlayersService } from './players.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,7 +18,7 @@ import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @Controller('players')
 export class PlayersController {
-  constructor(private readonly svc: PlayersService) {}
+  constructor(private readonly svc: PlayersService) { }
 
   // CREATE PLAYER
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -72,5 +73,14 @@ export class PlayersController {
     @Param('id') id: string,
   ) {
     return this.svc.unassignPodFromPlayer(req.user.sub, req.user.club_id, id);
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('CLUB_ADMIN')
+  @Delete(':id')
+  async delete(
+    @Req() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.svc.deletePlayer(req.user.sub, req.user.club_id, id);
   }
 }

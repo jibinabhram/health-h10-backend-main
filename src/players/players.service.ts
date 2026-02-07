@@ -243,4 +243,32 @@ export class PlayersService {
 
     return this.prisma.player.findUnique({ where: { player_id: playerId }, include: { player_pods: { include: { pod: { include: { pod_holder: true } } } }, club: true, hr_zones: true } });
   }
+
+  async deletePlayer(
+    clubAdminId: string,
+    clubId: string,
+    playerId: string,
+  ) {
+    // 1️⃣ Validate admin
+    const admin = await this.prisma.clubAdmin.findFirst({
+      where: { admin_id: clubAdminId, club_id: clubId }
+    });
+    if (!admin) throw new BadRequestException('Invalid club admin');
+
+    // 2️⃣ Ensure player belongs to this club
+    const player = await this.prisma.player.findUnique({
+      where: { player_id: playerId }
+    });
+
+    if (!player || player.club_id !== clubId) {
+      throw new BadRequestException('Player not found in your club');
+    }
+
+    // 3️⃣ Delete player
+    await this.prisma.player.delete({
+      where: { player_id: playerId }
+    });
+
+    return { success: true, message: 'Player deleted successfully' };
+  }
 }

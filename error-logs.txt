@@ -1,0 +1,2 @@
+[2026-02-07T04:47:13.827Z] 404 - {"message":"Cannot DELETE /players/aead1cf7-ca08-40bc-b1f4-b114a2d5c299","error":"Not Found","statusCode":404} - /players/aead1cf7-ca08-40bc-b1f4-b114a2d5c299
+[2026-02-07T04:47:19.630Z] 404 - {"message":"Cannot DELETE /players/aead1cf7-ca08-40bc-b1f4-b114a2d5c299","error":"Not Found","statusCode":404} - /players/aead1cf7-ca08-40bc-b1f4-b114a2d5c299
