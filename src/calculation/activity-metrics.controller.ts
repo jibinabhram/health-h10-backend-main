@@ -23,13 +23,14 @@ export class ActivityMetricsController {
     @Body() body: any,
     @Req() req: any,
   ) {
+    console.log('📥 RECV /activity-metrics/sync:', JSON.stringify(body).substring(0, 200) + '...');
     const { session_id, player_id, metrics } = body;
 
     if (!session_id || !player_id || !metrics) {
       throw new BadRequestException('Invalid sync payload');
     }
 
-    return this.service.createMetric(
+    await this.service.createMetric(
       session_id,        // string
       player_id,         // ✅ FIXED: UUID string (NO Number())
       {
@@ -56,6 +57,7 @@ export class ActivityMetricsController {
         recordedAt: metrics.recorded_at || metrics.created_at,
       },
     );
+    return { success: true };
   }
 
   @Get()

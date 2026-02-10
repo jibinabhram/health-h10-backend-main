@@ -394,14 +394,22 @@ model RawData {
 
 model Event {
   event_id           String             @id @default(uuid()) @db.Uuid
+  sessionId          String?            @unique @map("session_id")
   club_id            String             @db.Uuid
   event_name         String?
   event_date         DateTime?
   location           String?
   event_type         String?
+
+  file_start_ts      BigInt?
+  file_end_ts        BigInt?
+  trim_start_ts      BigInt?
+  trim_end_ts        BigInt?
+
   created_at         DateTime           @default(now()) @db.Timestamptz(6)
   event_participants EventParticipant[]
   exercises          Exercise[]
+  activity_metrics   ActivityMetric[]
   club               Club               @relation(fields: [club_id], references: [club_id], onDelete: Cascade)
 
   @@map("events")
@@ -501,7 +509,8 @@ model ServiceRequest {
 model ActivityMetric {
   id String @id @default(uuid()) @db.Uuid
 
-  sessionId String @map("session_id")
+  sessionId String? @map("session_id")
+  event     Event?  @relation(fields: [sessionId], references: [sessionId], onDelete: SetNull, onUpdate: Cascade)
 
   /**
    * FK → players.player_id (UUID stored as string in TS)

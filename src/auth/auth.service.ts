@@ -233,13 +233,14 @@ export class AuthService {
       });
     }
 
-    // ✅ JWT WITH CLUB_ID FOR CLUB_ADMIN
+    // ✅ JWT WITH CLUB_ID FOR CLUB_ADMIN / COACH
     let tokenPayload: {
       sub: string;
       email: string;
       role: string;
       club_id?: string;
     };
+    let clubId: string | undefined;
 
     if (role === 'CLUB_ADMIN') {
       const admin = await this.prisma.clubAdmin.findUnique({
@@ -257,6 +258,19 @@ export class AuthService {
         role,
         club_id: admin.club_id,
       };
+      clubId = admin.club_id;
+    } else if (role === 'COACH') {
+      const coach = await this.prisma.coach.findUnique({
+        where: { coach_id: idValue },
+        select: { club_id: true },
+      });
+      clubId = coach?.club_id;
+      tokenPayload = {
+        sub: idValue,
+        email: user.email!,
+        role,
+        club_id: clubId,
+      };
     } else {
       tokenPayload = {
         sub: idValue,
@@ -271,6 +285,7 @@ export class AuthService {
       message: 'Login successful',
       access_token: token,
       role,
+      club_id: clubId,
       user: this.buildUserResponse(user),
     };
   }

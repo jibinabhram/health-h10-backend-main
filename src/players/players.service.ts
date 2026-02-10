@@ -3,6 +3,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 
@@ -49,7 +50,7 @@ export class PlayersService {
         });
       } catch (e: any) {
         if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e instanceof PrismaClientKnownRequestError &&
           e.code === 'P2002'
         ) {
           throw new BadRequestException(
@@ -187,7 +188,7 @@ export class PlayersService {
         });
       } catch (e: any) {
         if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e instanceof PrismaClientKnownRequestError &&
           e.code === 'P2002'
         ) {
           throw new BadRequestException('Jersey number already exists in this club');

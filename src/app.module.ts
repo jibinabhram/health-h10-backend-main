@@ -19,6 +19,11 @@ import { ServiceRequestsModule } from './service-requests/service-requests.modul
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PaymentPlansModule } from './payment-plans/payment-plans.module';
 import { PodHoldersModule } from './pod-holders/pod-holders.module';
+
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+
 import { ActivityMetricsModule } from './calculation/activity-metrics.module';
 import { ExerciseTypesModule } from './exercise-types/exercise-types.module';
 import { TeamThresholdsModule } from './team-thresholds/team-thresholds.module';

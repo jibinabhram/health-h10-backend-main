@@ -1,0 +1,26 @@
+[2026-02-09T08:54:24.012Z] 404 - {"message":"Cannot GET /uploads/1770362747144-46243809.jpg","error":"Not Found","statusCode":404} - /uploads/1770362747144-46243809.jpg
+[2026-02-09T08:55:00.590Z] 404 - {"message":"Cannot GET /uploads/1770362747144-46243809.jpg","error":"Not Found","statusCode":404} - /uploads/1770362747144-46243809.jpg
+[2026-02-09T08:55:07.117Z] 500 - "Internal server error" - /exercise-types
+[2026-02-09T08:55:14.256Z] 500 - "Internal server error" - /exercise-types
+[2026-02-09T08:55:14.294Z] 500 - "Internal server error" - /exercise-types
+[2026-02-09T09:07:08.022Z] 404 - {"message":"Cannot GET /uploads/1770362747144-46243809.jpg","error":"Not Found","statusCode":404} - /uploads/1770362747144-46243809.jpg
+[2026-02-09T09:08:53.512Z] 401 - {"message":"Invalid or expired OTP","error":"Unauthorized","statusCode":401} - /auth/verify-login-otp
+[2026-02-09T09:24:58.744Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T09:43:52.101Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T09:50:59.361Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T10:31:05.081Z] 404 - {"message":"Cannot HEAD /","error":"Not Found","statusCode":404} - /
+[2026-02-09T10:32:09.918Z] 404 - {"message":"Cannot HEAD /","error":"Not Found","statusCode":404} - /
+[2026-02-09T11:32:53.756Z] 404 - {"message":"Cannot GET /uploads/1000332843.jpg","error":"Not Found","statusCode":404} - /uploads/1000332843.jpg
+[2026-02-09T11:46:55.612Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T11:47:44.597Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T11:48:48.753Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T11:49:04.995Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-09T11:57:03.499Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-10T05:17:08.009Z] 500 - "Internal server error" - /activity-metrics/sync
+[2026-02-10T06:12:32.446Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:32.816Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:33.266Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:33.516Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:33.981Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:34.322Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T06:12:34.411Z] 500 - "Internal server error" - /events/sync
