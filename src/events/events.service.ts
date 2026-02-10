@@ -130,6 +130,11 @@ export class EventsService {
             },
           },
         },
+        exercises: {
+          select: {
+            type: true,
+          },
+        },
       },
       orderBy: {
         created_at: 'desc',

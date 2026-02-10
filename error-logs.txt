@@ -24,3 +24,11 @@
 [2026-02-10T06:12:33.981Z] 500 - "Internal server error" - /events/sync
 [2026-02-10T06:12:34.322Z] 500 - "Internal server error" - /events/sync
 [2026-02-10T06:12:34.411Z] 500 - "Internal server error" - /events/sync
+[2026-02-10T07:18:18.626Z] 404 - {"message":"Cannot GET /uploads/1770701584431-287046740.jpg","error":"Not Found","statusCode":404} - /uploads/1770701584431-287046740.jpg
+[2026-02-10T07:19:21.850Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:19:37.401Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:20:13.108Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:20:39.864Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:21:58.624Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:23:21.058Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T07:23:54.885Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
