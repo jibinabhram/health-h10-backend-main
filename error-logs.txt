@@ -32,3 +32,5 @@
 [2026-02-10T07:21:58.624Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
 [2026-02-10T07:23:21.058Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
 [2026-02-10T07:23:54.885Z] 401 - {"message":"User not found","error":"Unauthorized","statusCode":401} - /auth/login
+[2026-02-10T10:56:54.887Z] 404 - {"message":"Cannot GET /uploads/1000333366.jpg","error":"Not Found","statusCode":404} - /uploads/1000333366.jpg
+[2026-02-10T10:57:12.432Z] 404 - {"message":"Cannot GET /uploads/1000333306.jpg","error":"Not Found","statusCode":404} - /uploads/1000333306.jpg
